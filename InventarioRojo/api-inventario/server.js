@@ -38,12 +38,10 @@ const upload = multer({ storage: storage });
 app.post('/login', (req, res) => {
     const { Usuario, contraseña } = req.body;
 
-    // Verificación de campos requeridos
     if (!Usuario || !contraseña) {
         return res.status(400).json({ error: 'Usuario y contraseña son obligatorios' });
     }
 
-    // Actualización de la consulta para usar la tabla Administrador
     const sql = 'SELECT * FROM Administrador WHERE Usuario = ? AND contraseña = ?';
     pool.query(sql, [Usuario, contraseña], (err, results) => {
         if (err) {
@@ -52,10 +50,8 @@ app.post('/login', (req, res) => {
         }
 
         if (results.length > 0) {
-            // Usuario y contraseña correctos
             res.json({ message: 'Login exitoso', user: results[0] });
         } else {
-            // Credenciales incorrectas
             res.status(401).json({ error: 'Credenciales incorrectas' });
         }
     });
