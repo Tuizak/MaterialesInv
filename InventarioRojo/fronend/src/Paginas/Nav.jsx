@@ -11,7 +11,6 @@ const Nav = () => {
     <div>
       <nav>
         <ul>
-          <li><Link to="/Inicio">Inicio</Link></li>
           <li><Link to="/Catalogo">Catálogo</Link></li>
           <li><Link to="/Crear">Agregar Material</Link></li>
           <li><Link to="/Inventarios">Movimientos</Link></li>
