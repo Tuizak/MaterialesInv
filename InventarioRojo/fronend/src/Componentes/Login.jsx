@@ -26,7 +26,7 @@ const Login = () => {
 
       // Aquí puedes guardar el token o datos del usuario si es necesario
       login(response.data); // Actualiza el estado de usuario en el contexto
-      navigate('/Inicio'); // Redirige al usuario a la página deseada
+      navigate('/Catalogo'); // Redirige al usuario a la página deseada
     } catch (err) {
       if (err.response && err.response.status === 401) {
         setError('Credenciales incorrectas. Inténtalo de nuevo.');

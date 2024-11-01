@@ -10,7 +10,7 @@ const port = 3000;
 // Middleware
 app.use(express.json());
 app.use(cors());
-app.use('/uploads', express.static('uploads')); // Servir imágenes
+app.use('/uploads', express.static('uploads'));
 
 // Configuración del pool de conexiones de la base de datos
 const pool = mysql.createPool({
@@ -26,13 +26,40 @@ const pool = mysql.createPool({
 // Configuración de multer para el almacenamiento de imágenes
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Carpeta de almacenamiento
+        cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Nombre con fecha y extensión
+        cb(null, Date.now() + path.extname(file.originalname));
     }
 });
 const upload = multer({ storage: storage });
+
+// Endpoint de login para autenticar usuarios
+app.post('/login', (req, res) => {
+    const { Usuario, contraseña } = req.body;
+
+    // Verificación de campos requeridos
+    if (!Usuario || !contraseña) {
+        return res.status(400).json({ error: 'Usuario y contraseña son obligatorios' });
+    }
+
+    // Actualización de la consulta para usar la tabla Administrador
+    const sql = 'SELECT * FROM Administrador WHERE Usuario = ? AND contraseña = ?';
+    pool.query(sql, [Usuario, contraseña], (err, results) => {
+        if (err) {
+            console.error('Error al verificar el usuario:', err.message);
+            return res.status(500).json({ error: 'Error en el servidor', details: err.message });
+        }
+
+        if (results.length > 0) {
+            // Usuario y contraseña correctos
+            res.json({ message: 'Login exitoso', user: results[0] });
+        } else {
+            // Credenciales incorrectas
+            res.status(401).json({ error: 'Credenciales incorrectas' });
+        }
+    });
+});
 
 // Endpoint para agregar materiales con imagen
 app.post('/api/materiales', upload.single('imagen'), (req, res) => {
@@ -68,7 +95,6 @@ app.get('/api/materiales', (req, res) => {
             return res.status(500).json({ error: 'Error en el servidor' });
         }
 
-        // Agregar el prefijo a las URLs de imagen
         const materiales = results.map(material => ({
             ...material,
             imagen_url: material.imagen_url ? `http://localhost:3000${material.imagen_url}` : null
@@ -77,7 +103,7 @@ app.get('/api/materiales', (req, res) => {
     });
 });
 
-// Endpoint para actualizar material (sin imagen)
+// Endpoint para actualizar material
 app.put('/api/materiales/:id', (req, res) => {
     const { id } = req.params;
     const { nombre, metros_disponibles, precio } = req.body;
@@ -101,13 +127,13 @@ app.put('/api/materiales/:id', (req, res) => {
 app.delete('/api/materiales/:id', (req, res) => {
     const { id } = req.params;
 
-    console.log('Intentando eliminar material con ID:', id); // Agregado para depuración
+    console.log('Intentando eliminar material con ID:', id);
 
     const sql = 'DELETE FROM Materiales WHERE id_material = ?';
     pool.query(sql, [id], (err, results) => {
         if (err) {
-            console.error('Error al eliminar material:', err);
-            return res.status(500).json({ error: 'Error en el servidor', details: err.message }); // Detalles del error
+            console.error('Error al eliminar material:', err.message);
+            return res.status(500).json({ error: 'Error en el servidor', details: err.message });
         }
 
         if (results.affectedRows === 0) {
@@ -117,8 +143,6 @@ app.delete('/api/materiales/:id', (req, res) => {
         res.json({ message: 'Material eliminado' });
     });
 });
-
-// ===================== Nuevos Endpoints para MovimientosInventario ===================== //
 
 // Endpoint para obtener el historial de movimientos
 app.get('/api/movimientos', (req, res) => {
@@ -136,39 +160,32 @@ app.get('/api/movimientos', (req, res) => {
 app.post('/api/movimientos', async (req, res) => {
     const { id_material, tipo_movimiento, cantidad, fecha_movimiento, descripcion } = req.body;
 
-    // Comenzamos una transacción
     const connection = await pool.promise().getConnection();
     await connection.beginTransaction();
     
     try {
-        // Primero, insertamos el nuevo movimiento
         const sqlInsert = 'INSERT INTO MovimientosInventario (id_material, tipo_movimiento, cantidad, fecha_movimiento, descripcion) VALUES (?, ?, ?, ?, ?)';
         await connection.query(sqlInsert, [id_material, tipo_movimiento, cantidad, fecha_movimiento, descripcion]);
 
-        // Luego, actualizamos la cantidad de metros disponibles en Materiales
         const sqlUpdate = tipo_movimiento === 'entrada' 
             ? 'UPDATE Materiales SET metros_disponibles = metros_disponibles + ? WHERE id_material = ?'
             : 'UPDATE Materiales SET metros_disponibles = metros_disponibles - ? WHERE id_material = ?';
         
         await connection.query(sqlUpdate, [cantidad, id_material]);
 
-        // Si la cantidad disponible se vuelve negativa, lanzamos un error
         const [material] = await connection.query('SELECT metros_disponibles FROM Materiales WHERE id_material = ?', [id_material]);
         if (material[0].metros_disponibles < 0) {
             throw new Error('No hay suficiente material disponible para esta salida.');
         }
 
-        // Confirmamos la transacción
         await connection.commit();
 
         res.status(201).json({ message: 'Movimiento registrado exitosamente' });
     } catch (error) {
-        // Revertimos la transacción en caso de error
         await connection.rollback();
         console.error('Error al registrar movimiento:', error);
         res.status(500).json({ error: 'Error en el servidor al registrar movimiento', details: error.message });
     } finally {
-        // Liberamos la conexión
         connection.release();
     }
 });
