@@ -132,17 +132,45 @@ app.get('/api/movimientos', (req, res) => {
     });
 });
 
-// Endpoint para agregar un nuevo movimiento
-app.post('/api/movimientos', (req, res) => {
+// Endpoint para agregar un nuevo movimiento y actualizar la cantidad de materiales
+app.post('/api/movimientos', async (req, res) => {
     const { id_material, tipo_movimiento, cantidad, fecha_movimiento, descripcion } = req.body;
-    const sql = 'INSERT INTO MovimientosInventario (id_material, tipo_movimiento, cantidad, fecha_movimiento, descripcion) VALUES (?, ?, ?, ?, ?)';
-    pool.query(sql, [id_material, tipo_movimiento, cantidad, fecha_movimiento, descripcion], (err, results) => {
-        if (err) {
-            console.error('Error al agregar movimiento:', err);
-            return res.status(500).json({ error: 'Error en el servidor al agregar movimiento', details: err.message });
+
+    // Comenzamos una transacción
+    const connection = await pool.promise().getConnection();
+    await connection.beginTransaction();
+    
+    try {
+        // Primero, insertamos el nuevo movimiento
+        const sqlInsert = 'INSERT INTO MovimientosInventario (id_material, tipo_movimiento, cantidad, fecha_movimiento, descripcion) VALUES (?, ?, ?, ?, ?)';
+        await connection.query(sqlInsert, [id_material, tipo_movimiento, cantidad, fecha_movimiento, descripcion]);
+
+        // Luego, actualizamos la cantidad de metros disponibles en Materiales
+        const sqlUpdate = tipo_movimiento === 'entrada' 
+            ? 'UPDATE Materiales SET metros_disponibles = metros_disponibles + ? WHERE id_material = ?'
+            : 'UPDATE Materiales SET metros_disponibles = metros_disponibles - ? WHERE id_material = ?';
+        
+        await connection.query(sqlUpdate, [cantidad, id_material]);
+
+        // Si la cantidad disponible se vuelve negativa, lanzamos un error
+        const [material] = await connection.query('SELECT metros_disponibles FROM Materiales WHERE id_material = ?', [id_material]);
+        if (material[0].metros_disponibles < 0) {
+            throw new Error('No hay suficiente material disponible para esta salida.');
         }
-        res.status(201).json({ id_movimiento: results.insertId, id_material, tipo_movimiento, cantidad, fecha_movimiento, descripcion });
-    });
+
+        // Confirmamos la transacción
+        await connection.commit();
+
+        res.status(201).json({ message: 'Movimiento registrado exitosamente' });
+    } catch (error) {
+        // Revertimos la transacción en caso de error
+        await connection.rollback();
+        console.error('Error al registrar movimiento:', error);
+        res.status(500).json({ error: 'Error en el servidor al registrar movimiento', details: error.message });
+    } finally {
+        // Liberamos la conexión
+        connection.release();
+    }
 });
 
 // Endpoint para actualizar un movimiento
