@@ -18,6 +18,19 @@ const Catalogo = () => {
     fetchMateriales();
   }, []);
 
+  // Función para eliminar un material
+  const handleEliminar = async (id) => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar este material?")) {
+      try {
+        await axios.delete(`http://localhost:3000/api/materiales/${id}`);
+        // Filtrar el material eliminado del estado
+        setMateriales(materiales.filter(material => material.id_material !== id));
+      } catch (error) {
+        console.error('Error al eliminar material:', error);
+      }
+    }
+  };
+
   return (
     <div className="catalogo">
       {materiales.map((material) => (
@@ -30,7 +43,10 @@ const Catalogo = () => {
           <h3 className="material-name">{material.nombre}</h3>
           <p><strong>Disponible:</strong> {material.metros_disponibles} metros</p>
           <p><strong>Precio:</strong> ${material.precio}</p>
-          <button className="edit-button">Editar</button>
+          <div className="actions">
+            <button onClick={() => alert("Función de editar aquí")}>Editar</button>
+            <button onClick={() => handleEliminar(material.id_material)}>Eliminar</button>
+          </div>
         </div>
       ))}
     </div>

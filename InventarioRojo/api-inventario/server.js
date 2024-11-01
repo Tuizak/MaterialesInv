@@ -101,11 +101,13 @@ app.put('/api/materiales/:id', (req, res) => {
 app.delete('/api/materiales/:id', (req, res) => {
     const { id } = req.params;
 
+    console.log('Intentando eliminar material con ID:', id); // Agregado para depuración
+
     const sql = 'DELETE FROM Materiales WHERE id_material = ?';
     pool.query(sql, [id], (err, results) => {
         if (err) {
             console.error('Error al eliminar material:', err);
-            return res.status(500).json({ error: 'Error en el servidor' });
+            return res.status(500).json({ error: 'Error en el servidor', details: err.message }); // Detalles del error
         }
 
         if (results.affectedRows === 0) {
