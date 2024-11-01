@@ -1,0 +1,64 @@
+/* Contenedor del navbar */
+nav {
+    background-color: #ff4d4d; /* Fondo rojo brillante */
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    position: relative;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+/* Efecto hover */
+nav ul li a:hover {
+    background-color: #d42a2a; /* Un rojo más oscuro */
+    color: #ffd1d1; /* Color de texto más claro en hover */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Indicador decorativo en hover */
+nav ul li a::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 2px;
+    background-color: #ffd1d1;
+    left: 50%;
+    bottom: -5px;
+    transition: all 0.3s ease;
+}
+
+nav ul li a:hover::after {
+    width: 100%;
+    left: 0;
+}
+
+/* Efecto de transformación para enlaces */
+nav ul li a:hover {
+    transform: translateY(-2px);
+}
+
+/* Efecto de cambio de color y borde para enlaces activos */
+nav ul li a.active {
+    background-color: #d42a2a;
+    color: #ffffff;
+    border-bottom: 2px solid #ffd1d1;
+}
