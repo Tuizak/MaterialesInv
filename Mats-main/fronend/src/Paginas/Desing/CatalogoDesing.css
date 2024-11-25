@@ -1,0 +1,97 @@
+body {
+  background-image: url('../../../public/fondo5.jpg');
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+@media (max-width: 576px) {
+  body {
+    font-size: 0.9rem;
+  }
+}
+
+
+
+.catalogo-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.catalogo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.material-card {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  width: 250px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.material-image {
+  width: 100%;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+  .catalogo-container {
+    padding: 10px;
+  }
+  .material-card {
+    width: 90%;
+  }
+}
+
+
+.material-name {
+  font-size: 1.5rem;
+  color: #ff4d4d;
+  margin-bottom: 10px;
+}
+
+
+.actions button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.actions button:hover {
+  background-color: #d42a2a;
+}
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.edit-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  color: #f5eded;
+}
+
+.save-button,
+.cancel-button {
+  margin-top: 10px;
+}

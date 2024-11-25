@@ -1,0 +1,104 @@
+.inventarios-container {
+    max-width: 1500px;
+    margin: 40px auto;
+    padding: 50px;
+    background-color: rgba(255, 237, 237, 0.9); 
+    border-radius: 40px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.inventarios-container h2 {
+    color: #b22222;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.movimiento-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+}
+
+.movimiento-form select,
+.movimiento-form input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: #fff;
+}
+
+.movimiento-button {
+    background-color: #ff4d4d;
+    color: white;
+    font-size: 1.1rem;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.movimiento-button:hover {
+    background-color: #d42a2a;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.success-message {
+    color: green;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.historial-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.historial-section {
+    width: 45%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.85); 
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.historial-section h4 {
+    color: #b22222;
+    margin-bottom: 10px;
+}
+
+.historial-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.historial-item {
+    padding: 5px;
+    font-size: 0.9rem;
+    color: #333; 
+    background-color: rgba(255, 255, 255, 0.9); 
+    border-bottom: 1px solid #f5c6cb;
+}
+
+.historial-item:last-child {
+    border-bottom: none;
+}
